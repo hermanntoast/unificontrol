@@ -31,7 +31,7 @@ import os
 import requests
 
 from .exceptions import UnifiAPIError, UnifiTransportError, UnifiLoginError
-from .metaprogram import UnifiAPICall, UnifiAPICallNoSite, MetaNameFixer
+from .metaprogram import UnifiAPICall, UnifiAPICallV2, UnifiAPICallNoSite, MetaNameFixer
 from .json_fixers import (fix_note_noted, fix_user_object_nesting, fix_macs_list,
                           fix_end_now, fix_start_12hours, fix_start_7days, fix_start_1year,
                           fix_ensure_time_attrib, fix_constants, fix_arg_names,
@@ -110,7 +110,10 @@ class UnifiClient(metaclass=MetaNameFixer):
             response = resp.json()
             if 'meta' in response and response['meta']['rc'] != 'ok':
                 raise UnifiAPIError(response['meta']['msg'])
-            return response['data']
+            if 'data' in response:
+                return response['data']
+            else:
+                return response
         else:
             raise UnifiTransportError("{}: {}".format(resp.status_code, resp.reason))
 
@@ -624,6 +627,11 @@ class UnifiClient(metaclass=MetaNameFixer):
         path_arg_name="group_id",
         path_arg_optional=False,
         method="DELETE",
+        )
+
+    list_apgroups = UnifiAPICallV2(
+        "List ap groups",
+        "apgroups",
         )
 
     list_health = UnifiAPICall(
