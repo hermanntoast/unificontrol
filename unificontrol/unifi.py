@@ -1095,6 +1095,13 @@ class UnifiClient(metaclass=MetaNameFixer):
                     "mac_filter_list": mac_list}
         return self._raw_set_wlan_settings(wlan_id, settings=settings)
 
+    create_wlan = UnifiAPICall(
+        "Create a new wlan",
+        "rest/wlanconf",
+        json_body_name='settings',
+        method="POST",
+        )
+  
     delete_wlan = UnifiAPICall(
         "Delete a wlan",
         "rest/wlanconf",
