@@ -112,6 +112,17 @@ class _UnifiAPICallNoSite(_UnifiAPICall):
             endpoint=endpoint,
             path="/" + path_arg if path_arg else "")
 
+class _UnifiAPICallV2(_UnifiAPICall):
+    # pylint: disable=too-few-public-methods
+    "A representation of a single API call common to all sites"
+    def _build_url(self, client, path_arg):
+        if not client.site:
+            raise UnifiAPIError("No site specified for site-specific call")
+        return "https://{host}:{port}/v2/api/site/{site}/{endpoint}{path}".format(
+            host=client.host, port=client.port, site=client.site,
+            endpoint=self._endpoint,
+            path="/" + path_arg if path_arg else "")
+
 # We want to have proper introspection and documentation for our
 # methods but for some reason we you can't set a __signature__
 # directly on a bound method. Instead we wrap it up and fix the
@@ -137,3 +148,8 @@ def UnifiAPICallNoSite(*args, **kwargs):
     # pylint: disable=invalid-name
     """Make a controller-wide API call method"""
     return _make_wrapper(_UnifiAPICallNoSite, *args, **kwargs)
+
+def UnifiAPICallV2(*args, **kwargs):
+    # pylint: disable=invalid-name
+    """Make a site-specific API call method"""
+    return _make_wrapper(_UnifiAPICallV2, *args, **kwargs)
